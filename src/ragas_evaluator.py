@@ -25,9 +25,9 @@ async def run_ragas_evaluation(data: List[Dict[str, Any]]):
     Runs RAGAS evaluation on the provided dataset using Google Gemini via ChatGoogleGenerativeAI.
 
     @param data: A list of dictionaries, where each dictionary contains:
-                 'question': The user query.
-                 'contexts': A list of retrieved contexts.
-                 'answer': The generated answer.
+                 'user_input': The user query.
+                 'retrieved_contexts': A list of retrieved contexts.
+                 'response': The generated answer.
                  'reference': The ground truth answer (single string).
     """
     if not data:
@@ -59,7 +59,8 @@ async def run_ragas_evaluation(data: List[Dict[str, Any]]):
                 context_recall,
                 context_precision,
             ],
-            llm=ragas_llm
+            llm=ragas_llm,
+            embeddings=ragas_embeddings,
         )
         log.info("RAGAS evaluation completed.")
         log.info(result.to_pandas().to_json(orient="records", indent=2))

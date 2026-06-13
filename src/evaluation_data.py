@@ -41,9 +41,9 @@ async def get_evaluation_data() -> List[Dict[str, Any]]:
         reference_answer = agent_answer 
 
         evaluation_data.append({
-            "question": question,
-            "contexts": verified_contexts,
-            "answer": agent_answer,
+            "user_input": question,
+            "retrieved_contexts": verified_contexts,
+            "response": agent_answer,
             "reference": reference_answer,
         })
     
