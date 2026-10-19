@@ -1,7 +1,7 @@
 import asyncio
 import json
 import logging
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 import os
 
 from datasets import Dataset
@@ -20,6 +20,27 @@ from config import log, Config
 
 log.setLevel(logging.INFO)
 
+JUDGE_MODEL = "gemini-2.5-flash"
+EMBEDDINGS_MODEL = "models/embedding-001"
+ALL_METRICS = [faithfulness, answer_relevancy, context_recall, context_precision]
+
+def select_metrics(data: List[Dict[str, Any]]) -> Tuple[List[Any], List[str]]:
+    """
+    Picks the metrics whose required columns are present in every row of the dataset.
+    Metrics that need a 'reference' are skipped unless all rows carry a human-written one.
+
+    @param data: The evaluation rows.
+    @return: A tuple of (metrics to run, names of skipped metrics).
+    """
+    available = set.intersection(*(set(row) for row in data))
+    selected, skipped = [], []
+    for metric in ALL_METRICS:
+        if metric.required_columns["SINGLE_TURN"] <= available:
+            selected.append(metric)
+        else:
+            skipped.append(metric.name)
+    return selected, skipped
+
 async def run_ragas_evaluation(data: List[Dict[str, Any]]):
     """
     Runs RAGAS evaluation on the provided dataset using Google Gemini via ChatGoogleGenerativeAI.
@@ -28,18 +49,22 @@ async def run_ragas_evaluation(data: List[Dict[str, Any]]):
                  'user_input': The user query.
                  'retrieved_contexts': A list of retrieved contexts.
                  'response': The generated answer.
-                 'reference': The ground truth answer (single string).
+                 'reference': Optional human-written ground truth answer (single string).
     """
     if not data:
         log.warning("No data provided for RAGAS evaluation.")
         return
 
-    ragas_dataset = Dataset.from_list(data)
+    metrics, skipped = select_metrics(data)
+    if skipped:
+        log.warning(f"Skipping metrics {skipped}: not every row has the columns they require (e.g. 'reference').")
+    columns = set.union(*(m.required_columns["SINGLE_TURN"] for m in metrics))
+    ragas_dataset = Dataset.from_list([{k: v for k, v in row.items() if k in columns} for row in data])
 
-    gemini_llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=Config.GOOGLE_API_KEY)
+    gemini_llm = ChatGoogleGenerativeAI(model=JUDGE_MODEL, google_api_key=Config.GOOGLE_API_KEY)
     ragas_llm = LangchainLLMWrapper(gemini_llm)
     gemini_embeddings = GoogleGenerativeAIEmbeddings(
-        model="models/embedding-001",
+        model=EMBEDDINGS_MODEL,
         google_api_key=Config.GOOGLE_API_KEY
     )
     ragas_embeddings = LangchainEmbeddingsWrapper(gemini_embeddings)
@@ -53,12 +78,7 @@ async def run_ragas_evaluation(data: List[Dict[str, Any]]):
     try:
         result = evaluate(
             ragas_dataset,
-            metrics=[
-                faithfulness,
-                answer_relevancy,
-                context_recall,
-                context_precision,
-            ],
+            metrics=metrics,
             llm=ragas_llm,
             embeddings=ragas_embeddings,
         )
