@@ -6,7 +6,7 @@ import os
 
 from datasets import Dataset
 from ragas import evaluate
-from ragas.metrics.collections import (
+from ragas.metrics import (
     faithfulness,
     answer_relevancy,
     context_recall,
