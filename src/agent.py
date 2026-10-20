@@ -39,7 +39,7 @@ class StrandAgent:
     A wrapper agent for the Strands framework, allowing interaction with Strands agents
     using a LiteLLM model and provided MCP tools.
     """
-    def __init__(self, name: str, model_id: str = "gemini/gemini-2.5-flash", 
+    def __init__(self, name: str, model_id: str = f"gemini/{Config.GENERATION_MODEL}", 
                  system_prompt: str = "", tools: Optional[List[Any]] = None):
         """
         Initializes the StrandAgent with a name, LiteLLM model, system prompt, and optional tools.
@@ -392,7 +392,7 @@ class GroundingAgent:
 
         try:
             genai.configure(api_key=Config.GOOGLE_API_KEY)
-            synthesis_model = genai.GenerativeModel("gemini-2.5-flash") 
+            synthesis_model = genai.GenerativeModel(Config.GENERATION_MODEL) 
             
             response = await synthesis_model.generate_content_async(synthesis_prompt)
             final_synthesized_answer = response.text

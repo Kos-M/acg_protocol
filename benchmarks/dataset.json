@@ -1,0 +1,22 @@
+{
+  "name": "cryptography-history-v1",
+  "description": "Questions over an indexed article on the evolution of cryptography. Fill 'reference' with a human-written ground-truth answer; samples without one are scored only on reference-free metrics.",
+  "samples": [
+    {
+      "question": "What was one of the earliest recorded forms of cryptographic schemes, and which ancient civilization is noted for employing it?",
+      "reference": ""
+    },
+    {
+      "question": "During the Renaissance, what key vulnerability of older ciphers did the introduction of polyalphabetic ciphers, such as the Vigenère cipher, successfully address?",
+      "reference": ""
+    },
+    {
+      "question": "Besides the cracking of the Enigma code, what is another historical case study mentioned in the article where cryptographic vulnerability had a significant, tangible impact on global events during World War II?",
+      "reference": ""
+    },
+    {
+      "question": "The paper navigates through the evolution of cryptography, shedding light on four major modern schemes: OTP, RSA, AES, and one other. What is the full name of this fourth scheme?",
+      "reference": ""
+    }
+  ]
+}

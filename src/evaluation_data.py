@@ -1,4 +1,6 @@
 import asyncio
+import json
+import os
 import re
 from typing import List, Dict, Any
 
@@ -8,26 +10,33 @@ from agent import GroundingAgent
 from config import log
 from ragas_evaluator import run_ragas_evaluation 
 
-async def get_evaluation_data() -> List[Dict[str, Any]]:
+DEFAULT_DATASET_PATH = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "benchmarks", "dataset.json"))
+
+def load_dataset(path: str = DEFAULT_DATASET_PATH) -> Dict[str, Any]:
+    """
+    Loads the benchmark dataset (questions and optional human-written references) from JSON.
+
+    @param path: Path to the dataset file.
+    """
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+async def get_evaluation_data(samples: List[Dict[str, str]], strategy: str = 'agent') -> List[Dict[str, Any]]:
     """
     Generates a dataset for RAGAS evaluation by querying the GroundingAgent
-    with predefined questions and extracting grounded context and agent responses.
+    with the dataset questions and extracting grounded context and agent responses.
+
+    @param samples: Dataset samples, each with a 'question' and an optional 'reference'.
+    @param strategy: The GroundingAgent generation strategy ('agent' or 'llm').
     """
     db_client = MongoDBClient()
     ugvp_instance = UGVPProtocol()
-    grounding_agent = GroundingAgent(ugvp_instance, strategy='agent')
+    grounding_agent = GroundingAgent(ugvp_instance, strategy=strategy)
 
     evaluation_data = []
 
-    # Predefined list of questions for evaluation
-    questions = [
-        "What was one of the earliest recorded forms of cryptographic schemes, and which ancient civilization is noted for employing it?",
-        "During the Renaissance, what key vulnerability of older ciphers did the introduction of polyalphabetic ciphers, such as the Vigenère cipher, successfully address?",
-        "Besides the cracking of the Enigma code, what is another historical case study mentioned in the article where cryptographic vulnerability had a significant, tangible impact on global events during World War II?",
-        "The paper navigates through the evolution of cryptography, shedding light on four major modern schemes: OTP, RSA, AES, and one other. What is the full name of this fourth scheme?"
-    ]
-
-    for question in questions:
+    for sample in samples:
+        question = sample["question"]
         log.info(f"Generating evaluation data for question: '{question}'")
         agent_response_with_acg, verified_contexts = await grounding_agent.generate_and_verify(question)
         agent_answer = re.sub(r"--- ACG_START ---.*?--- ACG_END ---", "", agent_response_with_acg, flags=re.DOTALL).strip()
@@ -36,16 +45,15 @@ async def get_evaluation_data() -> List[Dict[str, Any]]:
             log.warning(f"Agent returned an error message for question '{question}' due to no grounding context. Skipping this question.")
             continue
 
-        # For now, the reference answer is the same as the agent's answer,
-        # but in a real scenario, this would be a human-written reference.
-        reference_answer = agent_answer 
-
-        evaluation_data.append({
+        row = {
             "user_input": question,
             "retrieved_contexts": verified_contexts,
             "response": agent_answer,
-            "reference": reference_answer,
-        })
+        }
+        # Only human-written references are used; scoring the agent against its own answer is meaningless.
+        if sample.get("reference"):
+            row["reference"] = sample["reference"]
+        evaluation_data.append(row)
     
     try:
         return evaluation_data
@@ -54,7 +62,7 @@ async def get_evaluation_data() -> List[Dict[str, Any]]:
 
 if __name__ == "__main__":
     async def main():
-        data = await get_evaluation_data()
+        data = await get_evaluation_data(load_dataset()["samples"])
         if data: 
             await run_ragas_evaluation(data)
         else:
