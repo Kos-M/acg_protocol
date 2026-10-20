@@ -22,6 +22,8 @@ class Config:
     EMBEDDING_DIMENSION: int = 384 # Google's embedding dimension for 'text-embedding-001'
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "gemini-embedding-001") 
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "") 
+    # Gemini model used by the agent for generation and synthesis (the RAGAS judge model is fixed separately).
+    GENERATION_MODEL: str = os.getenv("GENERATION_MODEL", "gemini-3.8-flash")
     
     ACG_DELIMITERS: Dict[str, str] = {
         "CLAIM_START": "[",
