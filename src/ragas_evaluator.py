@@ -21,7 +21,7 @@ from config import log, Config
 log.setLevel(logging.INFO)
 
 JUDGE_MODEL = "gemini-2.5-flash"
-EMBEDDINGS_MODEL = "models/embedding-001"
+EMBEDDINGS_MODEL = f"models/{Config.EMBEDDING_MODEL}"
 ALL_METRICS = [faithfulness, answer_relevancy, context_recall, context_precision]
 
 def select_metrics(data: List[Dict[str, Any]]) -> Tuple[List[Any], List[str]]:
