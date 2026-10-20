@@ -21,7 +21,8 @@ from config import log, Config
 log.setLevel(logging.INFO)
 
 JUDGE_MODEL = "gemini-2.5-flash"
-EMBEDDINGS_MODEL = f"models/{Config.EMBEDDING_MODEL}"
+# Fixed on purpose, independent of the retrieval model (Config.EMBEDDING_MODEL), so answer_relevancy stays comparable across runs.
+EMBEDDINGS_MODEL = "models/gemini-embedding-001"
 ALL_METRICS = [faithfulness, answer_relevancy, context_recall, context_precision]
 
 def select_metrics(data: List[Dict[str, Any]]) -> Tuple[List[Any], List[str]]:
