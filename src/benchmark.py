@@ -25,7 +25,9 @@ def _git_info() -> Dict[str, Any]:
     """Returns the current commit and whether the working tree has uncommitted changes."""
     try:
         commit = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], text=True).strip()
-        dirty = bool(subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=no"], text=True).strip())
+        # benchmarks/ holds generated output (the report, earlier runs), so it doesn't make the code dirty.
+        dirty = bool(subprocess.check_output(
+            ["git", "status", "--porcelain", "--untracked-files=no", "--", ".", ":(exclude)benchmarks"], text=True).strip())
         return {"commit": commit, "dirty": dirty}
     except (subprocess.CalledProcessError, FileNotFoundError):
         return {"commit": "unknown", "dirty": None}
