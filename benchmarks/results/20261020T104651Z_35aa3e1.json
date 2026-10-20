@@ -1,0 +1,72 @@
+{
+  "run_id": "20261020T104651Z_35aa3e1",
+  "timestamp": "2026-10-20T10:46:51+00:00",
+  "label": "baseline, gemini-embedding-2 retrieval (no references)",
+  "git": {
+    "commit": "35aa3e1",
+    "dirty": true
+  },
+  "dataset": {
+    "name": "cryptography-history-v1",
+    "sha256": "fa2fa4d64d5c",
+    "samples": 4,
+    "evaluated": 4
+  },
+  "config": {
+    "strategy": "agent",
+    "agent_model": "gemini/gemini-2.5-flash",
+    "judge_model": "gemini-2.5-flash",
+    "embeddings_model": "models/gemini-embedding-001",
+    "retrieval_embedding_model": "gemini-embedding-2",
+    "retrieval_embedding_dimension": 384,
+    "ragas_version": "0.4.3"
+  },
+  "metrics_skipped": [
+    "context_recall",
+    "context_precision"
+  ],
+  "scores": {
+    "faithfulness": {
+      "mean": 1.0,
+      "scored": 4
+    },
+    "answer_relevancy": {
+      "mean": 0.7665273038375368,
+      "scored": 4
+    }
+  },
+  "samples": [
+    {
+      "user_input": "What was one of the earliest recorded forms of cryptographic schemes, and which ancient civilization is noted for employing it?",
+      "response": "One of the earliest recorded forms of cryptographic schemes was hieroglyphic substitution ciphers, and the ancient Egyptian civilization is noted for employing it.",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.8658247652986285
+      }
+    },
+    {
+      "user_input": "During the Renaissance, what key vulnerability of older ciphers did the introduction of polyalphabetic ciphers, such as the Vigenère cipher, successfully address?",
+      "response": "During the Renaissance, polyalphabetic ciphers like the Vigenère cipher successfully addressed the key vulnerability of older ciphers to simple letter frequency analysis. Older ciphers, such as the Caesar cipher, were easily broken by analyzing patterns in letter frequencies, but Vigenère’s use of multiple cipher alphabets initially made it resistant to this technique.",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.8411445457771131
+      }
+    },
+    {
+      "user_input": "Besides the cracking of the Enigma code, what is another historical case study mentioned in the article where cryptographic vulnerability had a significant, tangible impact on global events during World War II?",
+      "response": "Another historical case study mentioned is Operation Bernhard, a secret Nazi plan during World War II that aimed to destabilize the British economy through mass counterfeiting of British banknotes. This operation exploited vulnerabilities in the security features of the banknotes and the lack of advanced cryptographic techniques for their authentication at the time.",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.6457109511589262
+      }
+    },
+    {
+      "user_input": "The paper navigates through the evolution of cryptography, shedding light on four major modern schemes: OTP, RSA, AES, and one other. What is the full name of this fourth scheme?",
+      "response": "The fourth major modern scheme is ECC, though its full name is not specified in the provided information.",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.7134289531154794
+      }
+    }
+  ]
+}
